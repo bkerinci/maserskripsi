@@ -1,6 +1,4 @@
-[providers]
-  node = true
-  php = true
+providers = ["php", "node"]
 
 [phases.setup]
   nixPkgs = ["php84", "php84Packages.composer", "nodejs_20"]
