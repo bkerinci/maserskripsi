@@ -28,7 +28,7 @@ class SocialAuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
             
             // Check if user already exists
             $user = User::where('email', $googleUser->getEmail())->first();
@@ -76,7 +76,7 @@ class SocialAuthController extends Controller
             return redirect()->route('dashboard');
 
         } catch (\Exception $e) {
-            return redirect()->route('login')->withErrors(['email' => 'Gagal login menggunakan Google. Silakan coba lagi.']);
+            return redirect()->route('login')->withErrors(['google' => 'Gagal login menggunakan Google. Silakan coba lagi.']);
         }
     }
 }
