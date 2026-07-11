@@ -39,7 +39,6 @@ class SocialAuthController extends Controller
                 if (!$user->google_id) {
                     $user->update([
                         'google_id' => $googleUser->getId(),
-                        'google_token' => $googleUser->token,
                     ]);
                 }
                 
@@ -56,7 +55,6 @@ class SocialAuthController extends Controller
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
-                    'google_token' => $googleUser->token,
                     'password' => bcrypt(Str::random(16)), // Dummy password
                     'role' => 'user',
                 ]);

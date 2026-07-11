@@ -34,10 +34,9 @@ class GoogleController extends Controller
             $isNewUser = false;
 
             if ($user) {
-                // If exists, just update their google_id and token
+                // If exists, just update their google_id
                 $user->update([
                     'google_id' => $googleUser->getId(),
-                    'google_token' => $googleUser->token,
                 ]);
             } else {
                 $isNewUser = true;
@@ -46,7 +45,6 @@ class GoogleController extends Controller
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
-                    'google_token' => $googleUser->token,
                     // We generate a random password for Google-registered users 
                     // or we could leave it null, but since we set it to nullable it's fine.
                     // Actually, setting a random password is safer for some legacy auth checks.
