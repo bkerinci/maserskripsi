@@ -32,8 +32,6 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -57,8 +55,11 @@
                     </div>
                     <!-- Sidebar component -->
                     <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
-                        <div class="flex h-16 shrink-0 items-center mt-2">
-                            <img src="{{ asset('logo-full.png') }}" alt="Master Skripsi Logo" class="h-8 w-auto" />
+                        <div class="flex h-16 shrink-0 items-center mt-2 px-2 gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                M
+                            </div>
+                            <span class="font-heading font-bold text-xl text-gray-900 tracking-tight">Master<span class="text-blue-700">Skripsi</span></span>
                         </div>
                         <nav class="flex flex-1 flex-col">
                             <ul role="list" class="flex flex-1 flex-col gap-y-7">
@@ -77,8 +78,11 @@
         <!-- Static sidebar for desktop -->
         <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col border-r border-gray-200">
             <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
-                <div class="flex h-16 shrink-0 items-center mt-2">
-                    <img src="{{ asset('logo-full.png') }}" alt="Master Skripsi Logo" class="h-8 w-auto" />
+                <div class="flex h-16 shrink-0 items-center mt-2 px-2 gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                        M
+                    </div>
+                    <span class="font-heading font-bold text-xl text-gray-900 tracking-tight">Master<span class="text-blue-700">Skripsi</span></span>
                 </div>
                 <nav class="flex flex-1 flex-col">
                     <ul role="list" class="flex flex-1 flex-col gap-y-7">
