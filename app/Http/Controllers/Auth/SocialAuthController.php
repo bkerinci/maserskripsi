@@ -67,10 +67,6 @@ class SocialAuthController extends Controller
                 Auth::login($user);
             }
 
-            if ($isNewUser) {
-                return redirect()->to('/');
-            }
-
             return redirect()->route('dashboard');
 
         } catch (\Exception $e) {
