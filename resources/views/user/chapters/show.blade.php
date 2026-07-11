@@ -43,42 +43,49 @@
 
     <div class="flex flex-col lg:flex-row gap-6">
         <!-- Sidebar Daftar Subbab -->
-        <div class="w-full lg:w-1/4">
+        <div class="w-full lg:w-1/4" x-data="{ showList: false }">
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm sticky top-6">
-                <div class="p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-xl">
+                <div @click="showList = !showList" class="p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-xl cursor-pointer lg:cursor-default flex items-center justify-between">
                     <h3 class="font-semibold text-gray-900">Daftar Subbab</h3>
+                    <span class="lg:hidden text-gray-500">
+                        <svg class="h-5 w-5 transform transition-transform duration-200" :class="showList ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </span>
                 </div>
-                <ul id="sections-list" class="divide-y divide-gray-100 max-h-[calc(100vh-200px)] overflow-y-auto">
-                    @foreach($chapter->sections as $section)
-                        <li class="section-item relative group bg-white" data-id="{{ $section->id }}">
-                            <div class="flex items-center justify-between p-4 hover:bg-blue-50 transition-colors">
-                                <div class="flex items-center gap-2">
-                                    <span class="cursor-move text-gray-300 hover:text-gray-500 section-drag-handle">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                                    </span>
-                                    <a href="#section-{{ $section->id }}" class="text-sm font-medium {{ empty($section->content) ? 'text-gray-500' : 'text-gray-900' }}">
-                                        {{ $section->title }}
-                                    </a>
+                <div x-show="showList" class="lg:!block" style="display: none;">
+                    <ul id="sections-list" class="divide-y divide-gray-100 max-h-[calc(100vh-200px)] overflow-y-auto">
+                        @foreach($chapter->sections as $section)
+                            <li class="section-item relative group bg-white" data-id="{{ $section->id }}">
+                                <div class="flex items-center justify-between p-4 hover:bg-blue-50 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="cursor-move text-gray-300 hover:text-gray-500 section-drag-handle">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                                        </span>
+                                        <a href="#section-{{ $section->id }}" class="text-sm font-medium {{ empty($section->content) ? 'text-gray-500' : 'text-gray-900' }}">
+                                            {{ $section->title }}
+                                        </a>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="openEditSectionModal({{ $section->id }}, '{{ addslashes($section->title) }}')" class="text-blue-600 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 hover:text-blue-700 transition-colors border border-blue-100 shadow-sm" title="Edit Judul">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                                        </button>
+                                        @if(!empty($section->content))
+                                            <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            </svg>
+                                        @endif
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="openEditSectionModal({{ $section->id }}, '{{ addslashes($section->title) }}')" class="text-blue-600 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 hover:text-blue-700 transition-colors border border-blue-100 shadow-sm" title="Edit Judul">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
-                                    </button>
-                                    @if(!empty($section->content))
-                                        <svg class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                        </svg>
-                                    @endif
-                                </div>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
-                <div class="p-4 border-t border-gray-100">
-                    <button onclick="document.getElementById('modal-tambah-subbab').classList.remove('hidden')" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                        Tambah Subbab Manual
-                    </button>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <div class="p-4 border-t border-gray-100">
+                        <button onclick="document.getElementById('modal-tambah-subbab').classList.remove('hidden')" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                            Tambah Subbab Manual
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

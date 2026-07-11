@@ -44,7 +44,7 @@
         
         <!-- Sidebar for mobile -->
         <div x-show="sidebarOpen" class="relative z-50 lg:hidden" role="dialog" aria-modal="true" style="display: none;">
-            <div x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 bg-gray-900/80"></div>
+            <div x-show="sidebarOpen" x-transition.opacity @click="sidebarOpen = false" class="fixed inset-0 bg-gray-900/80"></div>
             <div class="fixed inset-0 flex">
                 <div x-show="sidebarOpen" x-transition.translate.x.left class="relative mr-16 flex w-full max-w-xs flex-1">
                     <div class="absolute left-full top-0 flex w-16 justify-center pt-5">
