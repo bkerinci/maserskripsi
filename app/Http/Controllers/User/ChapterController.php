@@ -139,11 +139,19 @@ class ChapterController extends Controller
             abort(403);
         }
 
+        if (!auth()->user()->canUseAi()) {
+            return redirect()->route('user.subscription.index')
+                ->with('error', 'Batas AI Prompt Anda bulan ini sudah habis atau Anda belum memiliki paket aktif. Silakan upgrade paket Anda untuk terus menggunakan AI.');
+        }
+
         $content = $gemini->generateChapterContent($project->title, $chapter->title, $section->title, $project->research_type);
 
         $section->update([
             'content' => $content
         ]);
+
+        // Catat penggunaan AI
+        auth()->user()->recordAiUsage('chapter_generation');
 
         return redirect()->route('user.chapters.show', [$project, $chapter])
             ->with('success', "Isi subbab {$section->title} berhasil digenerate oleh AI.");

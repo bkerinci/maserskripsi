@@ -16,6 +16,11 @@ class AiJudulController extends Controller
 
     public function generate(Request $request, GeminiService $gemini)
     {
+        if (!auth()->user()->canUseAi()) {
+            return redirect()->route('user.subscription.index')
+                ->with('error', 'Batas AI Prompt Anda bulan ini sudah habis atau Anda belum memiliki paket aktif. Silakan upgrade paket Anda untuk terus menggunakan AI.');
+        }
+
         $validated = $request->validate([
             'minat' => 'required|string|max:255',
             'bidang' => 'required|string|max:255',
@@ -36,6 +41,9 @@ class AiJudulController extends Controller
             'input_lokasi' => $validated['lokasi'] ?? null,
             'results' => $results,
         ]);
+
+        // Catat penggunaan AI
+        auth()->user()->recordAiUsage('title_generation');
 
         return redirect()->route('user.ai-judul.show', $topicIdea);
     }

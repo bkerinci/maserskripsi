@@ -43,6 +43,13 @@ class ProposalController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
+        if (!auth()->user()->canUseAi()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batas AI Prompt Anda bulan ini sudah habis atau Anda belum memiliki paket aktif. Silakan upgrade paket Anda untuk terus menggunakan AI.'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'section_id' => 'required|exists:chapter_sections,id'
         ]);
@@ -66,6 +73,9 @@ class ProposalController extends Controller
         }
 
         $section->update(['content' => $content]);
+
+        // Catat penggunaan AI
+        auth()->user()->recordAiUsage('proposal_generation');
 
         return response()->json([
             'success' => true,

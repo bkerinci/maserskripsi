@@ -75,6 +75,60 @@
             </div>
         @endif
 
+        @php
+            $userLimits = auth()->user()->getPlanLimits();
+            $usedPrompts = auth()->user()->getUsedPromptsCount();
+            $projectCount = auth()->user()->projects()->count();
+            
+            $promptLimitText = $userLimits['prompts'] >= 999999 ? 'Tak Terbatas' : $userLimits['prompts'] . ' / Bulan';
+            $projectLimitText = $userLimits['projects'] >= 999999 ? 'Tak Terbatas' : $userLimits['projects'];
+        @endphp
+
+        <!-- Detail Penggunaan Kuota -->
+        <div class="max-w-4xl mx-auto mb-12 bg-white rounded-3xl p-8 border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-6 font-heading flex items-center gap-2">
+                <span>📊</span> Statistik Penggunaan Kuota Anda
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Paket Aktif -->
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Paket Saat Ini</p>
+                    <p class="text-2xl font-bold text-slate-800 mt-2 font-heading">{{ $userLimits['name'] }}</p>
+                    @if(auth()->user()->role === 'premium' && auth()->user()->subscription_ends_at)
+                        <p class="text-xs text-slate-500 mt-2">
+                            Berakhir: {{ \Carbon\Carbon::parse(auth()->user()->subscription_ends_at)->format('d M Y') }}
+                        </p>
+                    @else
+                        <p class="text-xs text-slate-500 mt-2">Silakan pilih paket untuk menikmati fitur penuh.</p>
+                    @endif
+                </div>
+
+                <!-- Kuota Project -->
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jumlah Project Aktif</p>
+                    <p class="text-2xl font-bold text-slate-800 mt-2 font-heading">
+                        {{ $projectCount }} <span class="text-sm font-normal text-slate-400">/ {{ $projectLimitText }}</span>
+                    </p>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-200 rounded-full h-1.5 mt-3 overflow-hidden">
+                        <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ $userLimits['projects'] >= 999999 ? 0 : min(100, ($projectCount / $userLimits['projects']) * 100) }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Kuota AI Prompts -->
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">AI Prompt Terpakai</p>
+                    <p class="text-2xl font-bold text-slate-800 mt-2 font-heading">
+                        {{ $usedPrompts }} <span class="text-sm font-normal text-slate-400">/ {{ $promptLimitText }}</span>
+                    </p>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-200 rounded-full h-1.5 mt-3 overflow-hidden">
+                        <div class="bg-indigo-600 h-1.5 rounded-full" style="width: {{ $userLimits['prompts'] >= 999999 ? 0 : min(100, ($usedPrompts / $userLimits['prompts']) * 100) }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Grid Paket -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-16">
             @foreach($plans as $index => $plan)

@@ -29,6 +29,14 @@ class AIEditorController extends Controller
         $text = $request->input('text');
         $resultText = '';
 
+        // Only check AI limit if not a grammar check (grammar check uses LanguageTool, not Gemini)
+        if ($action !== 'grammar' && !auth()->user()->canUseAi()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Batas AI Prompt Anda bulan ini sudah habis atau Anda belum memiliki paket aktif. Silakan upgrade paket Anda untuk terus menggunakan AI.'
+            ], 403);
+        }
+
         try {
             if ($action === 'grammar') {
                 $grammarCheck = $this->languageToolService->checkGrammar($text);
@@ -43,6 +51,9 @@ class AIEditorController extends Controller
                 }
             } else {
                 $resultText = $this->geminiService->paraphrase($text, $action);
+                
+                // Catat penggunaan AI
+                auth()->user()->recordAiUsage('editor_paraphrase');
             }
 
             return response()->json([

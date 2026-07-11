@@ -16,11 +16,20 @@ class ProjectController extends Controller
 
     public function create()
     {
+        if (!auth()->user()->canCreateProject()) {
+            return redirect()->route('user.subscription.index')
+                ->with('error', 'Anda telah mencapai batas maksimal pembuatan project untuk paket langganan Anda. Silakan upgrade paket Anda untuk membuat project baru.');
+        }
         return view('user.projects.create');
     }
 
     public function store(Request $request)
     {
+        if (!auth()->user()->canCreateProject()) {
+            return redirect()->route('user.subscription.index')
+                ->with('error', 'Anda telah mencapai batas maksimal pembuatan project untuk paket langganan Anda. Silakan upgrade paket Anda untuk membuat project baru.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'university' => 'nullable|string|max:255',
