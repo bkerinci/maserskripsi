@@ -144,7 +144,10 @@ class ChapterController extends Controller
                 ->with('error', 'Batas AI Prompt Anda bulan ini sudah habis atau Anda belum memiliki paket aktif. Silakan upgrade paket Anda untuk terus menggunakan AI.');
         }
 
-        $content = $gemini->generateChapterContent($project->title, $chapter->title, $section->title, $project->research_type);
+        // Fetch references to pass to AI
+        $references = $project->references()->get()->toArray();
+
+        $content = $gemini->generateChapterContent($project->title, $chapter->title, $section->title, $project->research_type, $references);
 
         $section->update([
             'content' => $content

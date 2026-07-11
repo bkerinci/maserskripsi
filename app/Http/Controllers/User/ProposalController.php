@@ -63,7 +63,8 @@ class ProposalController extends Controller
 
         // Panggil AI
         $gemini = app(GeminiService::class);
-        $content = $gemini->generateChapterContent($project->title, $section->chapter->title, $section->title, $project->research_type);
+        $references = $project->references()->get()->toArray();
+        $content = $gemini->generateChapterContent($project->title, $section->chapter->title, $section->title, $project->research_type, $references);
 
         if (empty($content) || str_starts_with($content, 'Maaf, terjadi kesalahan')) {
             return response()->json([

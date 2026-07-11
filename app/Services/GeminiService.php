@@ -129,7 +129,7 @@ class GeminiService
         return $promptText;
     }
 
-    public function generateProposalSection(string $title, string $section, string $researchType, string $university, string $studyProgram): ?string
+    public function generateProposalSection(string $title, string $section, string $researchType, string $university, string $studyProgram, array $references = []): ?string
     {
         $defaultSystem = "Kamu adalah asisten penulisan skripsi akademik berbahasa Indonesia yang profesional.";
         $defaultPrompt = "Buatkan bagian '{\$section}' untuk proposal skripsi dengan detail berikut:
@@ -140,17 +140,33 @@ class GeminiService
 
 Tuliskan dalam bahasa Indonesia yang formal dan akademis.
 Gunakan paragraf yang runtut, logis, dan sesuai standar penulisan ilmiah.
-Sertakan referensi fiktif yang realistis jika diperlukan (format APA).
 Panjang tulisan minimal 3 paragraf.
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya saja.
-Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.";
+Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
+Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
+Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink berupa tag HTML <a> dengan target='_blank' (contoh: <a href='https://doi.org/10.1109/xxx' target='_blank'>NamaPenulis, 2024</a>) yang mengarah ke link URL asli dari jurnal tersebut (baik dari referensi yang disediakan maupun jurnal riil lainnya).
+{\$references_context}";
+
+        $refText = "";
+        if (!empty($references)) {
+            $refText = "\n\nBerikut adalah daftar referensi jurnal riil yang disimpan untuk proyek ini. Anda WAJIB memprioritaskan penggunaan referensi ini jika relevan:\n";
+            foreach ($references as $r) {
+                $refUrl = $r['url'] ?: ($r['doi'] ? 'https://doi.org/'.$r['doi'] : '');
+                if ($refUrl) {
+                    $refText .= "- \"{$r['title']}\" oleh {$r['authors']} ({$r['year']}). Jurnal: {$r['journal']}. URL: {$refUrl}\n";
+                } else {
+                    $refText .= "- \"{$r['title']}\" oleh {$r['authors']} ({$r['year']}). Jurnal: {$r['journal']}\n";
+                }
+            }
+        }
 
         $prompt = $this->buildPrompt('proposal_section', [
             'section' => $section,
             'title' => $title,
             'researchType' => $researchType,
             'university' => $university,
-            'studyProgram' => $studyProgram
+            'studyProgram' => $studyProgram,
+            'references_context' => $refText
         ], $defaultPrompt, $defaultSystem);
 
         return $this->generate($prompt, 0.7, 4096);
@@ -159,7 +175,7 @@ Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Be
     /**
      * Generate chapter/section content.
      */
-    public function generateChapterContent(string $title, string $chapterTitle, string $sectionTitle, string $researchType): ?string
+    public function generateChapterContent(string $title, string $chapterTitle, string $sectionTitle, string $researchType, array $references = []): ?string
     {
         $defaultSystem = "Kamu adalah asisten penulisan skripsi akademik berbahasa Indonesia yang profesional.";
         $defaultPrompt = "Buatkan konten untuk subbab berikut:
@@ -170,15 +186,31 @@ Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Be
 
 Tulis dalam bahasa Indonesia yang formal, akademis, dan sesuai kaidah penulisan ilmiah.
 Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf.
-Sertakan referensi fiktif yang realistis dalam format APA jika diperlukan.
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya.
-Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.";
+Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
+Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
+Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink berupa tag HTML <a> dengan target='_blank' (contoh: <a href='https://doi.org/10.1109/xxx' target='_blank'>NamaPenulis, 2024</a>) yang mengarah ke link URL asli dari jurnal tersebut (baik dari referensi yang disediakan maupun jurnal riil lainnya).
+{\$references_context}";
+
+        $refText = "";
+        if (!empty($references)) {
+            $refText = "\n\nBerikut adalah daftar referensi jurnal riil yang disimpan untuk proyek ini. Anda WAJIB memprioritaskan penggunaan referensi ini jika relevan:\n";
+            foreach ($references as $r) {
+                $refUrl = $r['url'] ?: ($r['doi'] ? 'https://doi.org/'.$r['doi'] : '');
+                if ($refUrl) {
+                    $refText .= "- \"{$r['title']}\" oleh {$r['authors']} ({$r['year']}). Jurnal: {$r['journal']}. URL: {$refUrl}\n";
+                } else {
+                    $refText .= "- \"{$r['title']}\" oleh {$r['authors']} ({$r['year']}). Jurnal: {$r['journal']}\n";
+                }
+            }
+        }
 
         $prompt = $this->buildPrompt('chapter_generator', [
             'title' => $title,
             'chapterTitle' => $chapterTitle,
             'sectionTitle' => $sectionTitle,
-            'researchType' => $researchType
+            'researchType' => $researchType,
+            'references_context' => $refText
         ], $defaultPrompt, $defaultSystem);
 
         return $this->generate($prompt, 0.7, 4096);
