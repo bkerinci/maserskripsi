@@ -38,6 +38,11 @@ class GoogleController extends Controller
                 $user->update([
                     'google_id' => $googleUser->getId(),
                 ]);
+                
+                // Auto verify email if not already verified
+                if (!$user->hasVerifiedEmail()) {
+                    $user->markEmailAsVerified();
+                }
             } else {
                 $isNewUser = true;
                 // Create a new user
