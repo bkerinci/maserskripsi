@@ -7,52 +7,93 @@ use Illuminate\Support\Facades\Log;
 
 class GeminiService
 {
+    protected string $provider;
     protected string $apiKey;
     protected string $model;
-    protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+    protected string $baseUrl;
 
     public function __construct()
     {
-        $this->apiKey = config('services.gemini.api_key');
-        $this->model = config('services.gemini.model', 'gemini-2.0-flash');
+        $this->provider = env('AI_PROVIDER', 'gemini');
+        
+        if ($this->provider === 'openrouter') {
+            $this->apiKey = env('OPENROUTER_API_KEY', '');
+            $this->model = env('OPENROUTER_MODEL', 'google/gemini-2.5-flash');
+            $this->baseUrl = 'https://openrouter.ai/api/v1';
+        } else {
+            $this->apiKey = config('services.gemini.api_key');
+            $this->model = config('services.gemini.model', 'gemini-2.0-flash');
+            $this->baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+        }
     }
 
     /**
-     * Generate text content using Gemini API.
+     * Generate text content using configured AI API.
      */
     public function generate(string $prompt, float $temperature = 0.7, int $maxTokens = 4096): ?string
     {
         try {
-            $response = Http::withoutVerifying()->timeout(60)->post(
-                "{$this->baseUrl}/models/{$this->model}:generateContent?key={$this->apiKey}",
-                [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                ['text' => $prompt]
-                            ]
-                        ]
-                    ],
-                    'generationConfig' => [
+            if ($this->provider === 'openrouter') {
+                $response = Http::withoutVerifying()
+                    ->withHeaders([
+                        'Authorization' => "Bearer {$this->apiKey}",
+                        'Content-Type' => 'application/json',
+                        'HTTP-Referer' => config('app.url', 'http://jokiskripsi.test'),
+                        'X-Title' => config('app.name', 'Master Skripsi'),
+                    ])
+                    ->timeout(60)
+                    ->post("{$this->baseUrl}/chat/completions", [
+                        'model' => $this->model,
+                        'messages' => [
+                            ['role' => 'user', 'content' => $prompt]
+                        ],
                         'temperature' => $temperature,
-                        'maxOutputTokens' => $maxTokens,
-                    ],
-                ]
-            );
+                        'max_tokens' => $maxTokens,
+                    ]);
 
-            if ($response->successful()) {
-                $data = $response->json();
-                return $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                if ($response->successful()) {
+                    $data = $response->json();
+                    return $data['choices'][0]['message']['content'] ?? null;
+                }
+
+                Log::error('OpenRouter API Error', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+
+                return null;
+            } else {
+                $response = Http::withoutVerifying()->timeout(60)->post(
+                    "{$this->baseUrl}/models/{$this->model}:generateContent?key={$this->apiKey}",
+                    [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    ['text' => $prompt]
+                                ]
+                            ]
+                        ],
+                        'generationConfig' => [
+                            'temperature' => $temperature,
+                            'maxOutputTokens' => $maxTokens,
+                        ],
+                    ]
+                );
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    return $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+                }
+
+                Log::error('Gemini API Error', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+
+                return null;
             }
-
-            Log::error('Gemini API Error', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
-
-            return null;
         } catch (\Exception $e) {
-            Log::error('Gemini API Exception: ' . $e->getMessage());
+            Log::error('AI Service Exception: ' . $e->getMessage());
             return null;
         }
     }
@@ -276,28 +317,20 @@ Tulis dalam bahasa Indonesia yang formal dan akademis. Berikan HANYA hasil paraf
                 'result' => $result,
                 'json_error' => json_last_error_msg()
             ]);
+            session()->flash('api_error', 'Gagal memproses respons AI. Menampilkan rekomendasi cadangan.');
         } else {
             $debugInfo = "API Error: No result. Check API Key or Network.";
+            session()->flash('api_error', 'Koneksi AI terganggu atau kuota habis. Menampilkan rekomendasi cadangan.');
         }
 
         // Fallback
-        return $this->getDummyTopics($minat, $bidang, $lokasi, $debugInfo);
+        return $this->getDummyTopics($minat, $bidang, $lokasi);
     }
 
-    private function getDummyTopics(string $minat, string $bidang, ?string $lokasi, string $debugInfo = ""): array
+    private function getDummyTopics(string $minat, string $bidang, ?string $lokasi): array
     {
         $topics = [];
         $lokasiText = $lokasi ? " di $lokasi" : "";
-        
-        if ($debugInfo) {
-            $topics[] = [
-                'judul' => "DEBUG: $debugInfo",
-                'kebaruan' => 'Tinggi',
-                'kesulitan' => 'Sedang',
-                'referensi' => 'Mudah',
-                'peluang_lulus' => 'Tinggi',
-            ];
-        }
 
         for ($i = 1; $i <= 20; $i++) {
             $topics[] = [

@@ -22,6 +22,15 @@
             <a href="{{ route('user.ai-judul.index') }}" class="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Coba Lagi</a>
         </div>
     @else
+        @if(session('api_error'))
+            <div class="mb-6 p-4 text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-xl flex items-center gap-3 shadow-sm" role="alert">
+                <svg class="h-5 w-5 text-yellow-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <div>
+                    <span class="font-bold">Info AI:</span> {{ session('api_error') }}
+                </div>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 gap-6">
             @foreach($topicIdea->results as $index => $item)
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row gap-6 items-start md:items-center hover:border-blue-300 transition-colors">
