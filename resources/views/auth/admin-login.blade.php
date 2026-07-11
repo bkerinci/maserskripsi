@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login Administrator - Master Skripsi</title>
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('favicon.png') }}?v=2" type="image/png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-slate-50 text-gray-900 font-sans antialiased">
