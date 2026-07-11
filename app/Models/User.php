@@ -110,11 +110,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
      public function getUsedPromptsCount(): int
      {
-         return \Illuminate\Support\Facades\DB::table('ai_usages')
-             ->where('user_id', $this->id)
-             ->whereMonth('created_at', now()->month)
-             ->whereYear('created_at', now()->year)
-             ->count();
+         try {
+             return \Illuminate\Support\Facades\DB::table('ai_usages')
+                 ->where('user_id', $this->id)
+                 ->whereMonth('created_at', now()->month)
+                 ->whereYear('created_at', now()->year)
+                 ->count();
+         } catch (\Exception $e) {
+             return 0; // Graceful fallback if table does not exist yet (before migration runs)
+         }
      }
 
      public function canUseAi(): bool
@@ -147,11 +151,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
      public function recordAiUsage(string $actionType): void
      {
-         \Illuminate\Support\Facades\DB::table('ai_usages')->insert([
-             'user_id' => $this->id,
-             'action_type' => $actionType,
-             'created_at' => now(),
-             'updated_at' => now()
-         ]);
+         try {
+             \Illuminate\Support\Facades\DB::table('ai_usages')->insert([
+                 'user_id' => $this->id,
+                 'action_type' => $actionType,
+                 'created_at' => now(),
+                 'updated_at' => now()
+             ]);
+         } catch (\Exception $e) {
+             \Illuminate\Support\Facades\Log::warning("Failed to record AI usage (table may not exist yet): " . $e->getMessage());
+         }
      }
 }

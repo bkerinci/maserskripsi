@@ -27,7 +27,7 @@ return new class extends Migration
 - Jenis Penelitian: {{ researchType }}
 
 Tulis dalam bahasa Indonesia yang formal, akademis, dan sesuai kaidah penulisan ilmiah.
-Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf.
+Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf. Khusus untuk subbab 'Latar Belakang', buat konten yang panjang, mendalam, dan komprehensif minimal 8 paragraf (setara dengan 2 halaman kertas A4) yang menguraikan fenomena, kesenjangan penelitian (research gap), urgensi, dan rumusan singkat solusi secara mendetail.
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya." . $instruction;
             } else if ($prompt->type === 'proposal_section') {
                 $newContent = "Buatkan bagian '{{ section }}' untuk proposal skripsi dengan detail berikut:
@@ -38,7 +38,7 @@ Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya." . $inst
 
 Tuliskan dalam bahasa Indonesia yang formal dan akademis.
 Gunakan paragraf yang runtut, logis, dan sesuai standar penulisan ilmiah.
-Panjang tulisan minimal 3 paragraf.
+Panjang tulisan minimal 3 paragraf. Khusus untuk bagian 'Latar Belakang', buat konten yang panjang, mendalam, dan komprehensif minimal 8 paragraf (setara dengan 2 halaman kertas A4).
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya saja." . $instruction;
             }
 

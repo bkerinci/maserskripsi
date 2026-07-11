@@ -48,6 +48,8 @@ class PromptSeeder extends Seeder
 
         // --- Prompts ---
 
+
+
         Prompt::firstOrCreate(
             ['type' => 'proposal_section'],
             [
@@ -61,7 +63,7 @@ class PromptSeeder extends Seeder
 
 Tuliskan dalam bahasa Indonesia yang formal dan akademis.
 Gunakan paragraf yang runtut, logis, dan sesuai standar penulisan ilmiah.
-Panjang tulisan minimal 3 paragraf.
+Panjang tulisan minimal 3 paragraf. Khusus untuk bagian 'Latar Belakang', buat konten yang panjang, mendalam, dan komprehensif minimal 8 paragraf (setara dengan 2 halaman kertas A4).
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya saja.
 Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
 Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
@@ -82,7 +84,7 @@ Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink
 - Jenis Penelitian: {{ researchType }}
 
 Tulis dalam bahasa Indonesia yang formal, akademis, dan sesuai kaidah penulisan ilmiah.
-Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf.
+Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf. Khusus untuk subbab 'Latar Belakang', buat konten yang panjang, mendalam, dan komprehensif minimal 8 paragraf (setara dengan 2 halaman kertas A4) yang menguraikan fenomena, kesenjangan penelitian (research gap), urgensi, dan rumusan singkat solusi secara mendetail.
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya.
 Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
 Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
