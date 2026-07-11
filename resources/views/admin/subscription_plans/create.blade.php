@@ -25,6 +25,26 @@
                     @error('price') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
 
+                <div class="mb-4">
+                    <label for="discount_price" class="block text-sm font-medium text-gray-700">Harga Diskon (Rp) - Opsional</label>
+                    <input type="number" name="discount_price" id="discount_price" value="{{ old('discount_price') }}" class="mt-2 block w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600 sm:text-sm transition-colors">
+                    <p class="text-xs text-gray-500 mt-1">Biarkan kosong jika tidak ada diskon. Harga diskon harus lebih kecil dari harga normal.</p>
+                    @error('discount_price') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="promo" class="block text-sm font-medium text-gray-700">Keterangan Promo - Opsional</label>
+                    <input type="text" name="promo" id="promo" value="{{ old('promo') }}" placeholder="Contoh: Diskon Kemerdekaan!" class="mt-2 block w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600 sm:text-sm transition-colors">
+                    @error('promo') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="duration_days" class="block text-sm font-medium text-gray-700">Durasi Aktif (Hari)</label>
+                    <input type="number" name="duration_days" id="duration_days" value="{{ old('duration_days', 30) }}" class="mt-2 block w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600 sm:text-sm transition-colors" required>
+                    <p class="text-xs text-gray-500 mt-1">Jumlah hari aktif setelah pembelian. Bulanan = 30 hari, Tahunan = 365 hari.</p>
+                    @error('duration_days') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                </div>
+
                 <div class="mb-6">
                     <label for="features" class="block text-sm font-medium text-gray-700">Fitur (Pisahkan dengan baris baru / enter)</label>
                     <textarea name="features" id="features" rows="5" class="mt-2 block w-full rounded-lg border-2 border-gray-300 bg-gray-50 px-4 py-3 text-gray-900 shadow-sm focus:border-blue-600 focus:bg-white focus:ring-2 focus:ring-blue-600 sm:text-sm transition-colors">{{ old('features') }}</textarea>

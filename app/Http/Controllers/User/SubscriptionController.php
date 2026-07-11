@@ -9,6 +9,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+use Carbon\Carbon;
+
 class SubscriptionController extends Controller
 {
     public function index()
@@ -21,46 +23,90 @@ class SubscriptionController extends Controller
                     'id' => 1,
                     'name' => 'Pro',
                     'price' => 49000,
+                    'discount_price' => null,
+                    'promo' => null,
+                    'duration_days' => 30,
                     'features' => ['Unlimited Project', 'Unlimited AI', 'Export DOCX', 'AI Citation']
                 ]
             ]);
         }
 
-        return view('user.subscription.index', compact('plans'));
+        $user = auth()->user();
+        $activePlan = null;
+        if ($user->role === 'premium' && $user->active_plan_id) {
+            $activePlan = SubscriptionPlan::find($user->active_plan_id);
+        }
+
+        $transactions = Transaction::where('user_id', $user->id)
+            ->with('subscriptionPlan')
+            ->latest()
+            ->get();
+
+        return view('user.subscription.index', compact('plans', 'activePlan', 'transactions'));
     }
 
     public function checkout(Request $request, $planId)
     {
+        $user = auth()->user();
+        $plan = SubscriptionPlan::findOrFail($planId);
+
+        // Base price (gunakan harga diskon jika ada)
+        $priceToPay = $plan->discount_price ?? $plan->price;
+        $prorataDiscount = 0;
+
+        // Hitung prorata jika ini adalah UPGRADE
+        if ($user->role === 'premium' && $user->active_plan_id && $user->subscription_ends_at && Carbon::parse($user->subscription_ends_at)->isFuture()) {
+            $currentPlan = SubscriptionPlan::find($user->active_plan_id);
+            if ($currentPlan) {
+                $currentPrice = $currentPlan->discount_price ?? $currentPlan->price;
+                $targetPrice = $plan->discount_price ?? $plan->price;
+
+                // Hanya upgrade (harga paket baru lebih tinggi dari paket saat ini)
+                if ($targetPrice > $currentPrice) {
+                    $remainingDays = Carbon::now()->diffInDays(Carbon::parse($user->subscription_ends_at), false);
+                    if ($remainingDays > 0) {
+                        $currentDuration = $currentPlan->duration_days ?: 30;
+                        $valuePerDay = $currentPrice / $currentDuration;
+                        $prorataDiscount = round($remainingDays * $valuePerDay);
+                        $priceToPay = max(0, $targetPrice - $prorataDiscount);
+                    }
+                }
+            }
+        }
+
+        // Jika harga akhir adalah 0 (penuh potongan prorata), aktivasi instan
+        if ($priceToPay <= 0) {
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'subscription_plan_id' => $plan->id,
+                'amount' => 0,
+                'status' => 'success',
+                'payment_method' => 'prorata_discount',
+            ]);
+
+            $this->applySubscription($user, $plan);
+
+            return redirect()->route('user.subscription.index')->with('success', 'Upgrade berhasil! Sisa masa aktif sebelumnya telah memotong harga paket baru Anda menjadi Rp 0.');
+        }
+
         // Setup midtrans
         \Midtrans\Config::$serverKey = config('services.midtrans.server_key');
         \Midtrans\Config::$isProduction = config('services.midtrans.is_production');
         \Midtrans\Config::$isSanitized = config('services.midtrans.is_sanitized');
         \Midtrans\Config::$is3ds = config('services.midtrans.is_3ds');
 
-        $user = auth()->user();
-        
-        // Cek fallback
-        $plan = SubscriptionPlan::find($planId);
-        if (!$plan) {
-            $plan = (object)[
-                'id' => $planId,
-                'name' => $request->input('plan_name', 'Premium Plan'),
-                'price' => $request->input('plan_price', 99000)
-            ];
-        }
-
         // Buat transaksi di DB
         $transaction = Transaction::create([
             'user_id' => $user->id,
-            'subscription_plan_id' => $planId == 1 ? null : $planId,
-            'amount' => $plan->price,
+            'subscription_plan_id' => $plan->id,
+            'amount' => $priceToPay,
             'status' => 'pending',
         ]);
 
         $params = array(
             'transaction_details' => array(
                 'order_id' => 'TRX-' . $transaction->id . '-' . time(),
-                'gross_amount' => $plan->price,
+                'gross_amount' => (int) $priceToPay,
             ),
             'customer_details' => array(
                 'first_name' => $user->name,
@@ -73,6 +119,7 @@ class SubscriptionController extends Controller
             return view('user.subscription.checkout', compact('snapToken', 'plan', 'transaction'));
         } catch (\Exception $e) {
             Log::error('Midtrans Error: ' . $e->getMessage());
+            $transaction->update(['status' => 'failed']);
             return back()->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
         }
     }
@@ -89,7 +136,7 @@ class SubscriptionController extends Controller
         }
 
         $transactionId = explode('-', $notif->order_id)[1];
-        $transaction = Transaction::find($transactionId);
+        $transaction = Transaction::with('user')->find($transactionId);
 
         if (!$transaction) {
             return response()->json(['message' => 'Transaction not found'], 404);
@@ -99,18 +146,26 @@ class SubscriptionController extends Controller
         $type = $notif->payment_type;
         $fraudStatus = $notif->fraud_status;
 
+        $transaction->update(['payment_method' => $type]);
+
         if ($transactionStatus == 'capture') {
             if ($type == 'credit_card') {
                 if ($fraudStatus == 'challenge') {
                     $transaction->update(['status' => 'pending']);
                 } else {
                     $transaction->update(['status' => 'success']);
-                    $this->upgradeUser($transaction->user_id);
+                    $plan = SubscriptionPlan::find($transaction->subscription_plan_id);
+                    if ($plan && $transaction->user) {
+                        $this->applySubscription($transaction->user, $plan);
+                    }
                 }
             }
         } else if ($transactionStatus == 'settlement') {
             $transaction->update(['status' => 'success']);
-            $this->upgradeUser($transaction->user_id);
+            $plan = SubscriptionPlan::find($transaction->subscription_plan_id);
+            if ($plan && $transaction->user) {
+                $this->applySubscription($transaction->user, $plan);
+            }
         } else if ($transactionStatus == 'pending') {
             $transaction->update(['status' => 'pending']);
         } else if ($transactionStatus == 'deny' || $transactionStatus == 'expire' || $transactionStatus == 'cancel') {
@@ -122,14 +177,65 @@ class SubscriptionController extends Controller
 
     public function success()
     {
-        return redirect()->route('user.dashboard')->with('success', 'Pembayaran berhasil! Akun Anda telah diupgrade ke Premium.');
+        return redirect()->route('user.subscription.index')->with('success', 'Pembayaran berhasil! Akun Anda telah diupgrade.');
     }
 
-    private function upgradeUser($userId)
+    public function downloadInvoice(Transaction $transaction)
     {
-        $user = User::find($userId);
-        if ($user) {
-            $user->update(['role' => 'premium']);
+        if ($transaction->user_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('user.subscription.invoice', compact('transaction'));
+        return $pdf->download('invoice-' . $transaction->id . '.pdf');
+    }
+
+    private function applySubscription($user, $plan)
+    {
+        $now = Carbon::now();
+        $duration = $plan->duration_days ?: 30;
+
+        if ($user->role !== 'premium') {
+            // Langganan Baru
+            $user->update([
+                'role' => 'premium',
+                'active_plan_id' => $plan->id,
+                'next_plan_id' => null,
+                'subscription_ends_at' => $now->addDays($duration),
+            ]);
+        } else {
+            // Sudah Premium
+            $currentPlan = SubscriptionPlan::find($user->active_plan_id);
+            $currentPrice = $currentPlan ? ($currentPlan->discount_price ?? $currentPlan->price) : 0;
+            $newPrice = $plan->discount_price ?? $plan->price;
+
+            if ($newPrice > $currentPrice) {
+                // UPGRADE: Berlaku instan, reset masa aktif baru
+                $user->update([
+                    'active_plan_id' => $plan->id,
+                    'next_plan_id' => null,
+                    'subscription_ends_at' => $now->addDays($duration),
+                ]);
+            } elseif ($plan->id == $user->active_plan_id) {
+                // STACKING (Paket Sama): Perpanjang masa aktif yang ada
+                $currentEndsAt = $user->subscription_ends_at ? Carbon::parse($user->subscription_ends_at) : $now;
+                if ($currentEndsAt->isPast()) {
+                    $currentEndsAt = $now;
+                }
+                $user->update([
+                    'subscription_ends_at' => $currentEndsAt->addDays($duration),
+                ]);
+            } else {
+                // DOWNGRADE (Paket Lebih Murah): Masuk antrean next_plan_id, perpanjang total masa aktif
+                $currentEndsAt = $user->subscription_ends_at ? Carbon::parse($user->subscription_ends_at) : $now;
+                if ($currentEndsAt->isPast()) {
+                    $currentEndsAt = $now;
+                }
+                $user->update([
+                    'next_plan_id' => $plan->id,
+                    'subscription_ends_at' => $currentEndsAt->addDays($duration),
+                ]);
+            }
         }
     }
 }

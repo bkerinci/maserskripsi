@@ -81,6 +81,7 @@ Route::prefix('user')->middleware(['auth', 'verified', 'role:user'])->name('user
     Route::get('/subscription', [App\Http\Controllers\User\SubscriptionController::class, 'index'])->name('subscription.index');
     Route::post('/subscription/{plan}/checkout', [App\Http\Controllers\User\SubscriptionController::class, 'checkout'])->name('subscription.checkout');
     Route::get('/subscription/success', [App\Http\Controllers\User\SubscriptionController::class, 'success'])->name('subscription.success');
+    Route::get('/subscription/invoice/{transaction}/download', [App\Http\Controllers\User\SubscriptionController::class, 'downloadInvoice'])->name('subscription.invoice.download');
     
     // AI Editor route
     Route::post('/ai-editor/process', [App\Http\Controllers\User\AIEditorController::class, 'process'])->name('ai-editor.process');
