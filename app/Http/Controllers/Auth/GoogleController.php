@@ -29,6 +29,7 @@ class GoogleController extends Controller
 
             // Check if user already exists
             $user = User::where('email', $googleUser->getEmail())->first();
+            $isNewUser = false;
 
             if ($user) {
                 // If exists, just update their google_id and token
@@ -37,6 +38,7 @@ class GoogleController extends Controller
                     'google_token' => $googleUser->token,
                 ]);
             } else {
+                $isNewUser = true;
                 // Create a new user
                 $user = User::create([
                     'name' => $googleUser->getName(),
@@ -52,6 +54,10 @@ class GoogleController extends Controller
             }
 
             Auth::login($user, true);
+
+            if ($isNewUser) {
+                return redirect()->to('/');
+            }
 
             return redirect()->route('dashboard');
         } catch (\Exception $e) {

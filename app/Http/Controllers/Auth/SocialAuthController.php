@@ -30,6 +30,7 @@ class SocialAuthController extends Controller
             
             // Check if user already exists
             $user = User::where('email', $googleUser->getEmail())->first();
+            $isNewUser = false;
 
             if ($user) {
                 // If user exists, update their google_id and login
@@ -47,6 +48,7 @@ class SocialAuthController extends Controller
 
                 Auth::login($user);
             } else {
+                $isNewUser = true;
                 // If user does not exist, create a new one
                 $user = User::create([
                     'name' => $googleUser->getName(),
@@ -63,6 +65,10 @@ class SocialAuthController extends Controller
                 event(new Registered($user));
 
                 Auth::login($user);
+            }
+
+            if ($isNewUser) {
+                return redirect()->to('/');
             }
 
             return redirect()->route('dashboard');

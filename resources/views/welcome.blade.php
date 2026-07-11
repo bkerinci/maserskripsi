@@ -98,20 +98,12 @@
                 <a href="#solusi" @click="mobileMenuOpen = false" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Solusi</a>
                 <a href="#harga" @click="mobileMenuOpen = false" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Harga</a>
                 
-                @if (Route::has('login'))
-                    <div class="border-t border-slate-200 mt-4 pt-4 flex flex-col space-y-3">
-                        @auth
-                            <a href="{{ url('/dashboard') }}" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Dashboard</a>
-                        @else
-                            <a href="{{ route('login') }}" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Masuk</a>
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="w-full text-center inline-flex justify-center items-center rounded-lg bg-blue-700 px-5 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-800 transition-colors">
-                                    Daftar Gratis
-                                </a>
-                            @endif
-                        @endauth
-                    </div>
-                @endif
+                @auth
+                    <a href="{{ url('/dashboard') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Masuk</a>
+                    <a href="{{ route('register') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Daftar Gratis</a>
+                @endauth
             </div>
         </div>
     </nav>
