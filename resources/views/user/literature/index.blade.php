@@ -308,7 +308,10 @@
                         alert('Gagal mengambil data dari Crossref.');
                     });
             } else if (source === 'doaj') {
-                fetch(`https://doaj.org/api/search/articles/${encodeURIComponent(query)}?pageSize=10`)
+                const currentYear = new Date().getFullYear();
+                const startYear = currentYear - 3;
+                const fullQuery = `${query} AND bibjson.year:[${startYear} TO ${currentYear}]`;
+                fetch(`https://doaj.org/api/search/articles/${encodeURIComponent(fullQuery)}?pageSize=10`)
                     .then(res => res.json())
                     .then(data => {
                         document.getElementById('btn-search').disabled = false;
