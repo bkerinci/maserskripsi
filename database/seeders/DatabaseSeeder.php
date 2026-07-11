@@ -15,6 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            AdminSeeder::class,
+            SubscriptionPlanSeeder::class,
+            LegalPageSeeder::class,
+        ]);
+
         // Create Admin User
         User::factory()->create([
             'name' => 'Admin User',

@@ -10,6 +10,12 @@ Route::get('/', function () {
 Route::get('/auth/google/redirect', [App\Http\Controllers\Auth\GoogleController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'callback'])->name('google.callback');
 
+// Admin Login Routes (Guest only)
+Route::middleware('guest')->group(function () {
+    Route::get('/pintu', [App\Http\Controllers\Auth\AdminLoginController::class, 'create'])->name('admin.login');
+    Route::post('/pintu', [App\Http\Controllers\Auth\AdminLoginController::class, 'store'])->name('admin.login.store');
+});
+
 Route::get('/dashboard', function () {
     $role = auth()->user()->role;
     if ($role === 'admin') {
