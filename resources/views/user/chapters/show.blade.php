@@ -277,7 +277,7 @@
 
                         editor.setProgressState(true);
 
-                        fetch('{{ route("ai-editor.process") }}', {
+                        fetch('{{ route("user.ai-editor.process") }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
