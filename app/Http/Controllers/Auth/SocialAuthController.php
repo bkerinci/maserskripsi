@@ -65,7 +65,7 @@ class SocialAuthController extends Controller
                 Auth::login($user);
             }
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->route('dashboard');
 
         } catch (\Exception $e) {
             return redirect()->route('login')->withErrors(['email' => 'Gagal login menggunakan Google. Silakan coba lagi.']);
