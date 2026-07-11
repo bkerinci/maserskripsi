@@ -25,7 +25,7 @@
     <meta property="twitter:image" content="{{ asset('logo.png') }}">
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('favicon.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('favicon.png') }}?v=2" type="image/png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

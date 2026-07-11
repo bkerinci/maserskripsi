@@ -23,7 +23,7 @@
     <meta property="twitter:description" content="{{ Str::limit(strip_tags($page->content), 160) }}">
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('favicon.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('favicon.png') }}?v=2" type="image/png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
