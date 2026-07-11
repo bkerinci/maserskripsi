@@ -43,7 +43,7 @@
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-blue-200 selection:text-blue-900">
     
     <!-- Navbar -->
-    <nav class="fixed w-full z-50 transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-slate-200">
+    <nav x-data="{ mobileMenuOpen: false }" class="fixed w-full z-50 transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
@@ -76,6 +76,42 @@
                         </div>
                     @endif
                 </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex md:hidden items-center">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-slate-600 hover:text-blue-700 focus:outline-none p-2">
+                        <svg x-show="!mobileMenuOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg x-show="mobileMenuOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div x-show="mobileMenuOpen" x-transition.opacity class="md:hidden bg-white border-b border-slate-200 shadow-lg" style="display: none;">
+            <div class="px-4 pt-2 pb-6 space-y-2 flex flex-col">
+                <a href="#fitur" @click="mobileMenuOpen = false" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Fitur</a>
+                <a href="#solusi" @click="mobileMenuOpen = false" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Solusi</a>
+                <a href="#harga" @click="mobileMenuOpen = false" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Harga</a>
+                
+                @if (Route::has('login'))
+                    <div class="border-t border-slate-200 mt-4 pt-4 flex flex-col space-y-3">
+                        @auth
+                            <a href="{{ url('/dashboard') }}" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Dashboard</a>
+                        @else
+                            <a href="{{ route('login') }}" class="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-700 hover:bg-slate-50 rounded-md">Masuk</a>
+                            @if (Route::has('register'))
+                                <a href="{{ route('register') }}" class="w-full text-center inline-flex justify-center items-center rounded-lg bg-blue-700 px-5 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-800 transition-colors">
+                                    Daftar Gratis
+                                </a>
+                            @endif
+                        @endauth
+                    </div>
+                @endif
             </div>
         </div>
     </nav>
