@@ -129,9 +129,6 @@ class GeminiService
         return $promptText;
     }
 
-    /**
-     * Generate proposal section (Latar Belakang, Rumusan Masalah, etc.)
-     */
     public function generateProposalSection(string $title, string $section, string $researchType, string $university, string $studyProgram): ?string
     {
         $defaultSystem = "Kamu adalah asisten penulisan skripsi akademik berbahasa Indonesia yang profesional.";
@@ -145,7 +142,8 @@ Tuliskan dalam bahasa Indonesia yang formal dan akademis.
 Gunakan paragraf yang runtut, logis, dan sesuai standar penulisan ilmiah.
 Sertakan referensi fiktif yang realistis jika diperlukan (format APA).
 Panjang tulisan minimal 3 paragraf.
-Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya saja.";
+Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya saja.
+Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.";
 
         $prompt = $this->buildPrompt('proposal_section', [
             'section' => $section,
@@ -173,7 +171,8 @@ Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya saja.";
 Tulis dalam bahasa Indonesia yang formal, akademis, dan sesuai kaidah penulisan ilmiah.
 Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf.
 Sertakan referensi fiktif yang realistis dalam format APA jika diperlukan.
-Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya.";
+Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya.
+Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.";
 
         $prompt = $this->buildPrompt('chapter_generator', [
             'title' => $title,

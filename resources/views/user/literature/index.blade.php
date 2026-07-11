@@ -193,7 +193,15 @@
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:border-emerald-200 transition" id="ref-item-{{ $ref->id }}">
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex-1 min-w-0">
-                            <h4 class="text-sm font-semibold text-gray-900 leading-snug">{{ $ref->title }}</h4>
+                            <h4 class="text-sm font-semibold text-gray-900 leading-snug">
+                                @if($ref->url || $ref->doi)
+                                    <a href="{{ $ref->url ?: 'https://doi.org/'.$ref->doi }}" target="_blank" class="hover:underline hover:text-emerald-600">
+                                        {{ $ref->title }}
+                                    </a>
+                                @else
+                                    {{ $ref->title }}
+                                @endif
+                            </h4>
                             <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-gray-500">
                                 @if($ref->authors)<span>{{ $ref->authors }}</span>@endif
                                 @if($ref->journal)<span>• {{ $ref->journal }}</span>@endif
@@ -518,11 +526,13 @@
             const sourceClass = ref.source === 'crossref' ? 'bg-blue-100 text-blue-700' : (ref.source === 'doaj' ? 'bg-orange-100 text-orange-700' : (ref.source === 'pdf' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'));
             const linkHtml = (ref.url || ref.doi) ? `<a href="${ref.url || 'https://doi.org/'+ref.doi}" target="_blank" class="p-1.5 text-gray-400 hover:text-emerald-600 transition" title="Buka Link"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a>` : '';
 
+            const titleHtml = (ref.url || ref.doi) ? `<a href="${ref.url || 'https://doi.org/'+ref.doi}" target="_blank" class="hover:underline hover:text-emerald-600">${ref.title}</a>` : ref.title;
+
             const html = `
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:border-emerald-200 transition" id="ref-item-${ref.id}">
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-semibold text-gray-900 leading-snug">${ref.title}</h4>
+                        <h4 class="text-sm font-semibold text-gray-900 leading-snug">${titleHtml}</h4>
                         <div class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-gray-500">
                             ${ref.authors ? `<span>${ref.authors}</span>` : ''}
                             ${ref.journal ? `<span>• ${ref.journal}</span>` : ''}
