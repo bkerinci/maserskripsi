@@ -50,6 +50,17 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Limit multiple accounts logging in from the same IP
+        $user = Auth::user();
+        if ($user && $user->role !== 'admin') {
+            if (!\App\Models\User::checkIpUsageLimit($this->ip(), $user->id)) {
+                Auth::logout();
+                throw ValidationException::withMessages([
+                    'email' => 'Login ditolak. Maksimal 2 akun per alamat IP terlampaui untuk mencegah penyalahgunaan.',
+                ]);
+            }
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

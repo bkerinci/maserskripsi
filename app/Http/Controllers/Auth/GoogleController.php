@@ -31,6 +31,13 @@ class GoogleController extends Controller
 
             // Check if user already exists
             $user = User::where('email', $googleUser->getEmail())->first();
+            
+            // Limit registration/login from the same IP address
+            $userId = $user ? $user->id : null;
+            if (!User::checkIpUsageLimit(request()->ip(), $userId)) {
+                return redirect('/login')->withErrors(['google' => 'Login/Pendaftaran ditolak. Maksimal 2 akun per alamat IP terlampaui untuk mencegah penyalahgunaan.']);
+            }
+
             $isNewUser = false;
 
             if ($user) {

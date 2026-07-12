@@ -36,6 +36,13 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Limit registration from the same IP address
+        if (!User::checkIpUsageLimit($request->ip())) {
+            throw ValidationException::withMessages([
+                'email' => 'Pendaftaran ditolak. Maksimal 2 akun per alamat IP terlampaui untuk mencegah penyalahgunaan.',
+            ]);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,

@@ -162,4 +162,25 @@ class User extends Authenticatable implements MustVerifyEmail
              \Illuminate\Support\Facades\Log::warning("Failed to record AI usage (table may not exist yet): " . $e->getMessage());
          }
      }
+
+     /**
+      * Check if the IP address has reached the maximum allowed accounts.
+      * Returns true if allowed, false if blocked.
+      */
+     public static function checkIpUsageLimit(string $ip, ?int $currentUserId = null): bool
+     {
+         if (in_array($ip, ['127.0.0.1', '::1'])) {
+             return true;
+         }
+
+         $query = self::where('last_login_ip', $ip)
+             ->where('role', '!=', 'admin');
+
+         if ($currentUserId) {
+             $query->where('id', '!=', $currentUserId);
+         }
+
+         // Maximum 2 accounts allowed per IP
+         return $query->count() < 2;
+     }
 }
