@@ -68,7 +68,8 @@ class StatisticsController extends Controller
             $process = \Illuminate\Support\Facades\Process::run(['python', $pythonScript, $fullPath]);
 
             if (!$process->successful()) {
-                return response()->json(['success' => false, 'message' => 'Gagal memproses dengan Python engine.'], 500);
+                $errorMsg = $process->errorOutput() ?: $process->output();
+                return response()->json(['success' => false, 'message' => 'Gagal memproses dengan Python engine. Error: ' . $errorMsg], 500);
             }
 
             $output = json_decode($process->output(), true);
