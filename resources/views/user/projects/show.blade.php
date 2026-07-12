@@ -232,8 +232,18 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
         // Modal Edit Bab
-        function openEditChapterModal(button, chapterId) {
-            const title = button.getAttribute('data-title');
+        function openEditChapterModal(first, second) {
+            let title = '';
+            let chapterId = null;
+
+            if (typeof first === 'object' && first !== null) {
+                title = first.getAttribute('data-title') || '';
+                chapterId = second;
+            } else {
+                chapterId = first;
+                title = second || '';
+            }
+
             document.getElementById('edit-bab-title').value = title;
             document.getElementById('form-edit-bab').action = `/user/projects/{{ $project->id }}/chapters/${chapterId}/rename`;
             document.getElementById('modal-edit-bab').classList.remove('hidden');

@@ -230,8 +230,18 @@
         }
 
         // Modal Edit Subbab
-        function openEditSectionModal(button, sectionId) {
-            const title = button.getAttribute('data-title');
+        function openEditSectionModal(first, second) {
+            let title = '';
+            let sectionId = null;
+
+            if (typeof first === 'object' && first !== null) {
+                title = first.getAttribute('data-title') || '';
+                sectionId = second;
+            } else {
+                sectionId = first;
+                title = second || '';
+            }
+
             document.getElementById('edit-subbab-title').value = title;
             document.getElementById('form-edit-subbab').action = `/user/projects/{{ $project->id }}/chapters/sections/${sectionId}/rename`;
             document.getElementById('modal-edit-subbab').classList.remove('hidden');
