@@ -68,6 +68,14 @@
                 Log AI Usage
             </a>
         </li>
+        <li>
+            <a href="{{ route('admin.ip-monitor.index') }}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {{ request()->routeIs('admin.ip-monitor.*') ? 'bg-gray-50 text-rose-600' : 'text-gray-700 hover:bg-gray-50 hover:text-rose-600' }}">
+                <svg class="h-6 w-6 shrink-0 {{ request()->routeIs('admin.ip-monitor.*') ? 'text-rose-600' : 'text-gray-400 group-hover:text-rose-600' }}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Monitor IP
+            </a>
+        </li>
         <li class="mt-4 border-t border-gray-200 pt-4">
             <a href="{{ route('profile.edit') }}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {{ request()->routeIs('profile.edit') ? 'bg-gray-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600' }}">
                 <svg class="h-6 w-6 shrink-0 {{ request()->routeIs('profile.edit') ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600' }}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

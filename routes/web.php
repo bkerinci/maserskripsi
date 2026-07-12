@@ -35,6 +35,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:admin'])->name('ad
     Route::resource('transactions', App\Http\Controllers\Admin\TransactionController::class);
     Route::resource('legal-pages', App\Http\Controllers\Admin\LegalPageController::class);
     Route::get('ai-usages', [App\Http\Controllers\Admin\AiUsageController::class, 'index'])->name('ai-usages.index');
+    Route::get('ip-monitor', [App\Http\Controllers\Admin\IpMonitorController::class, 'index'])->name('ip-monitor.index');
 });
 
 // User (Member) Routes
