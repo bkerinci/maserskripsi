@@ -143,6 +143,7 @@ Gunakan paragraf yang runtut, logis, dan sesuai standar penulisan ilmiah.
 Panjang tulisan minimal 3 paragraf. Khusus untuk bagian 'Latar Belakang', buat konten yang panjang, mendalam, dan komprehensif minimal 8 paragraf (setara dengan 2 halaman kertas A4).
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya saja.
 Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
+Jangan menuliskan kembali nomor bab, judul bab, maupun judul subbab (contoh: jangan tulis 'Bab 1 Pendahuluan' atau '1.1 Latar Belakang' di awal atau di bagian mana pun). LANGSUNG MULAI dengan kalimat pertama paragraf isi konten.
 Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
 Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink berupa tag HTML <a> dengan target='_blank' (contoh: <a href='https://doi.org/10.1109/xxx' target='_blank'>NamaPenulis, 2024</a>) yang mengarah ke link URL asli dari jurnal tersebut (baik dari referensi yang disediakan maupun jurnal riil lainnya).
 {\$references_context}";
@@ -170,7 +171,11 @@ Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink
         ], $defaultPrompt, $defaultSystem);
 
         $result = $this->generate($prompt, 0.7, 4096);
-        return $result ? $this->formatToHtmlParagraphs($result) : null;
+        if ($result) {
+            $cleaned = $this->cleanHeadingHeaders($result, "", $section);
+            return $this->formatToHtmlParagraphs($cleaned);
+        }
+        return null;
     }
 
     /**
@@ -189,6 +194,7 @@ Tulis dalam bahasa Indonesia yang formal, akademis, dan sesuai kaidah penulisan 
 Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf. Khusus untuk subbab 'Latar Belakang', buat konten yang panjang, mendalam, dan komprehensif minimal 8 paragraf (setara dengan 2 halaman kertas A4) yang menguraikan fenomena, kesenjangan penelitian (research gap), urgensi, dan rumusan singkat solusi secara mendetail.
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya.
 Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
+Jangan menuliskan kembali nomor bab, judul bab, maupun judul subbab (contoh: jangan tulis 'Bab 2 Tinjauan Pustaka' atau '2.1 Kajian Teori' di awal atau di bagian mana pun). LANGSUNG MULAI dengan kalimat pertama paragraf isi konten.
 Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
 Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink berupa tag HTML <a> dengan target='_blank' (contoh: <a href='https://doi.org/10.1109/xxx' target='_blank'>NamaPenulis, 2024</a>) yang mengarah ke link URL asli dari jurnal tersebut (baik dari referensi yang disediakan maupun jurnal riil lainnya).
 {\$references_context}";
@@ -215,7 +221,11 @@ Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink
         ], $defaultPrompt, $defaultSystem);
 
         $result = $this->generate($prompt, 0.7, 4096);
-        return $result ? $this->formatToHtmlParagraphs($result) : null;
+        if ($result) {
+            $cleaned = $this->cleanHeadingHeaders($result, $chapterTitle, $sectionTitle);
+            return $this->formatToHtmlParagraphs($cleaned);
+        }
+        return null;
     }
 
     /**
@@ -397,5 +407,49 @@ Tulis dalam bahasa Indonesia yang formal dan akademis. Berikan HANYA hasil paraf
         }
 
         return $html;
+    }
+
+    private function cleanHeadingHeaders(string $text, string $chapterTitle, string $sectionTitle): string
+    {
+        // Strip markdown headings at start
+        $text = preg_replace('/^#+\s+/m', '', $text);
+        
+        $lines = explode("\n", trim($text));
+        $cleanedLines = [];
+        $skipping = true;
+        
+        $normChapter = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($chapterTitle));
+        $normSection = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($sectionTitle));
+        
+        foreach ($lines as $line) {
+            $trimmed = trim(strip_tags($line));
+            if ($trimmed === '') {
+                if (!$skipping) {
+                    $cleanedLines[] = $line;
+                }
+                continue;
+            }
+            
+            if ($skipping) {
+                $normLine = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($trimmed));
+                
+                // If line matches chapter title or section title or typical "Bab X" / "X.Y" heading
+                if (
+                    $normLine === $normChapter ||
+                    $normLine === $normSection ||
+                    ($normChapter !== "" && str_contains($normChapter, $normLine)) ||
+                    str_contains($normSection, $normLine) ||
+                    preg_match('/^bab\d+$/i', $normLine) ||
+                    preg_match('/^\d+\d+$/i', $normLine) || // e.g. "21"
+                    preg_match('/^\d+\.\d+/i', $trimmed)
+                ) {
+                    continue;
+                }
+                $skipping = false;
+            }
+            $cleanedLines[] = $line;
+        }
+        
+        return implode("\n", $cleanedLines);
     }
 }

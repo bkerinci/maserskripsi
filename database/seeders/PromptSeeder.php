@@ -66,6 +66,7 @@ Gunakan paragraf yang runtut, logis, dan sesuai standar penulisan ilmiah.
 Panjang tulisan minimal 3 paragraf. Khusus untuk bagian 'Latar Belakang', buat konten yang panjang, mendalam, dan komprehensif minimal 8 paragraf (setara dengan 2 halaman kertas A4).
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya saja.
 Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
+Jangan menuliskan kembali nomor bab, judul bab, maupun judul subbab (contoh: jangan tulis 'Bab 1 Pendahuluan' atau '1.1 Latar Belakang' di awal atau di bagian mana pun). LANGSUNG MULAI dengan kalimat pertama paragraf isi konten.
 Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
 Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink berupa tag HTML <a> dengan target='_blank' (contoh: <a href='https://doi.org/10.1109/xxx' target='_blank'>NamaPenulis, 2024</a>) yang mengarah ke link URL asli dari jurnal tersebut (baik dari referensi yang disediakan maupun jurnal riil lainnya).
 {{ references_context }}"
@@ -87,6 +88,7 @@ Tulis dalam bahasa Indonesia yang formal, akademis, dan sesuai kaidah penulisan 
 Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf. Khusus untuk subbab 'Latar Belakang', buat konten yang panjang, mendalam, dan komprehensif minimal 8 paragraf (setara dengan 2 halaman kertas A4) yang menguraikan fenomena, kesenjangan penelitian (research gap), urgensi, dan rumusan singkat solusi secara mendetail.
 Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya.
 Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
+Jangan menuliskan kembali nomor bab, judul bab, maupun judul subbab (contoh: jangan tulis 'Bab 2 Tinjauan Pustaka' atau '2.1 Kajian Teori' di awal atau di bagian mana pun). LANGSUNG MULAI dengan kalimat pertama paragraf isi konten.
 Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
 Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink berupa tag HTML <a> dengan target='_blank' (contoh: <a href='https://doi.org/10.1109/xxx' target='_blank'>NamaPenulis, 2024</a>) yang mengarah ke link URL asli dari jurnal tersebut (baik dari referensi yang disediakan maupun jurnal riil lainnya).
 {{ references_context }}"
