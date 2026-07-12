@@ -65,7 +65,8 @@ class StatisticsController extends Controller
             }
 
             $pythonScript = base_path('python_engine/analyze_stats.py');
-            $process = \Illuminate\Support\Facades\Process::run(['python', $pythonScript, $fullPath]);
+            $pythonPath = env('PYTHON_PATH', 'python3');
+            $process = \Illuminate\Support\Facades\Process::run([$pythonPath, $pythonScript, $fullPath]);
 
             if (!$process->successful()) {
                 $errorMsg = $process->errorOutput() ?: $process->output();
