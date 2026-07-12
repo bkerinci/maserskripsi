@@ -110,6 +110,11 @@
                                         <button onclick="openEditChapterModal(this, {{ $chapter->id }})" data-title="{{ $chapter->title }}" class="text-blue-600 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 hover:text-blue-700 transition-colors border border-blue-100 shadow-sm" title="Edit Judul">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
                                         </button>
+                                        <a href="{{ route('user.export.chapter.docx', [$project, $chapter]) }}" class="text-emerald-600 bg-emerald-50 p-1.5 rounded-md hover:bg-emerald-100 hover:text-emerald-700 transition-colors border border-emerald-100 shadow-sm" title="Download Word Bab">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                            </svg>
+                                        </a>
                                     </div>
                                     <span class="text-xs font-medium {{ $progress == 100 ? 'text-green-600' : 'text-gray-500' }}">{{ $progress }}%</span>
                                 </div>

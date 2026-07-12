@@ -66,4 +66,68 @@ class ExportController extends Controller
 
         return response()->download($tempFile)->deleteFileAfterSend(true);
     }
+
+    public function exportChapterDocx(Project $project, \App\Models\Chapter $chapter)
+    {
+        if ($project->user_id !== auth()->id() || $chapter->project_id !== $project->id) {
+            abort(403);
+        }
+
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $wordSection = $phpWord->addSection();
+
+        $phpWord->addTitleStyle(1, ['bold' => true, 'size' => 16]);
+        $phpWord->addTitleStyle(2, ['bold' => true, 'size' => 14]);
+
+        $wordSection->addTitle($chapter->title, 1);
+        $wordSection->addTextBreak(1);
+
+        foreach ($chapter->sections()->orderBy('order')->get() as $sec) {
+            $wordSection->addTitle($sec->title, 2);
+            \PhpOffice\PhpWord\Shared\Html::addHtml($wordSection, $sec->content ?? '<p></p>', false, false);
+            $wordSection->addTextBreak(1);
+        }
+
+        $fileName = str_replace(' ', '_', $chapter->title) . '.docx';
+        $tempFile = storage_path('app/temp/' . $fileName);
+        
+        if (!is_dir(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
+        }
+
+        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter->save($tempFile);
+
+        return response()->download($tempFile)->deleteFileAfterSend(true);
+    }
+
+    public function exportSectionDocx(Project $project, \App\Models\ChapterSection $section)
+    {
+        $chapter = $section->chapter;
+        if ($project->user_id !== auth()->id() || $chapter->project_id !== $project->id) {
+            abort(403);
+        }
+
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $wordSection = $phpWord->addSection();
+
+        $phpWord->addTitleStyle(1, ['bold' => true, 'size' => 16]);
+
+        $wordSection->addTitle($section->title, 1);
+        $wordSection->addTextBreak(1);
+
+        \PhpOffice\PhpWord\Shared\Html::addHtml($wordSection, $section->content ?? '<p></p>', false, false);
+
+        $fileName = str_replace(' ', '_', $section->title) . '.docx';
+        $tempFile = storage_path('app/temp/' . $fileName);
+        
+        if (!is_dir(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
+        }
+
+        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter->save($tempFile);
+
+        return response()->download($tempFile)->deleteFileAfterSend(true);
+    }
 }

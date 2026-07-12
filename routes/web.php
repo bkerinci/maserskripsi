@@ -8,6 +8,7 @@ Route::get('/', function () {
 });
 
 Route::get('/auth/google/redirect', [App\Http\Controllers\Auth\GoogleController::class, 'redirect'])->name('google.redirect');
+
 Route::get('/auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'callback'])->name('google.callback');
 
 // Admin Login Routes (Guest only)
@@ -77,6 +78,8 @@ Route::prefix('user')->middleware(['auth', 'verified', 'role:user'])->name('user
     // Export
     Route::get('/projects/{project}/export/pdf', [App\Http\Controllers\User\ExportController::class, 'exportPdf'])->name('export.pdf');
     Route::get('/projects/{project}/export/docx', [App\Http\Controllers\User\ExportController::class, 'exportDocx'])->name('export.docx');
+    Route::get('/projects/{project}/export/chapters/{chapter}/docx', [App\Http\Controllers\User\ExportController::class, 'exportChapterDocx'])->name('export.chapter.docx');
+    Route::get('/projects/{project}/export/sections/{section}/docx', [App\Http\Controllers\User\ExportController::class, 'exportSectionDocx'])->name('export.section.docx');
     
     Route::get('/subscription', [App\Http\Controllers\User\SubscriptionController::class, 'index'])->name('subscription.index');
     Route::post('/subscription/{plan}/checkout', [App\Http\Controllers\User\SubscriptionController::class, 'checkout'])->name('subscription.checkout');
