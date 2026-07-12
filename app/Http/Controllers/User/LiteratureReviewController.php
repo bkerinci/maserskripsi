@@ -236,6 +236,11 @@ class LiteratureReviewController extends Controller
             ], 500);
         }
 
+        \App\Models\AiUsage::create([
+            'user_id' => auth()->id(),
+            'action_type' => 'Literature Review (' . $references->count() . ' referensi)'
+        ]);
+
         return response()->json([
             'success' => true,
             'review_content' => $result

@@ -94,6 +94,11 @@ class StatisticsController extends Controller
                 $narrative = "Berhasil memproses dataset dengan **{$output['rows']} baris** dan **{$output['cols']} kolom**. Reliabilitas (Alpha): " . round($output['cronbach_alpha'], 3);
             }
 
+            \App\Models\AiUsage::create([
+                'user_id' => auth()->id(),
+                'action_type' => 'Statistics Analysis (' . $output['rows'] . ' baris)'
+            ]);
+
             return response()->json([
                 'success' => true,
                 'summary' => $narrative,
