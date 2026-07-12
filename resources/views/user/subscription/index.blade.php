@@ -202,7 +202,7 @@
                     </ul>
 
                     @if($plan->price == 0)
-                        <a href="#" onclick="alert('Silakan hubungi kami via email.'); return false;" class="block w-full text-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">Hubungi Kami</a>
+                        <a href="mailto:admin@masterskripsi.my.id?subject=Pemesanan%20Paket%20Langganan%20Campus" class="block w-full text-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">Hubungi Kami</a>
                     @else
                         @if($isCurrentActive)
                             <form action="{{ route('user.subscription.checkout', $plan->id) }}" method="POST">

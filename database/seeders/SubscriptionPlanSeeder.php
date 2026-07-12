@@ -45,6 +45,7 @@ class SubscriptionPlanSeeder extends Seeder
             'name' => 'Campus',
             'price' => 0,
             'features' => [
+                'Custom',
                 'Multi-user / Mahasiswa',
                 'Dashboard Dosen',
                 'Branding Kampus'
