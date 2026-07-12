@@ -169,7 +169,8 @@ Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink
             'references_context' => $refText
         ], $defaultPrompt, $defaultSystem);
 
-        return $this->generate($prompt, 0.7, 4096);
+        $result = $this->generate($prompt, 0.7, 4096);
+        return $result ? $this->formatToHtmlParagraphs($result) : null;
     }
 
     /**
@@ -213,7 +214,8 @@ Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink
             'references_context' => $refText
         ], $defaultPrompt, $defaultSystem);
 
-        return $this->generate($prompt, 0.7, 4096);
+        $result = $this->generate($prompt, 0.7, 4096);
+        return $result ? $this->formatToHtmlParagraphs($result) : null;
     }
 
     /**
@@ -373,5 +375,27 @@ Tulis dalam bahasa Indonesia yang formal dan akademis. Berikan HANYA hasil paraf
             ];
         }
         return $topics;
+    }
+
+    private function formatToHtmlParagraphs(string $text): string
+    {
+        // If it already contains HTML paragraph tags, return as is
+        if (preg_match('/<p\b[^>]*>/i', $text)) {
+            return $text;
+        }
+
+        // Split text by double newlines to isolate paragraphs
+        $paragraphs = preg_split('/\n{2,}/', trim($text));
+        
+        $html = '';
+        foreach ($paragraphs as $para) {
+            $line = trim($para);
+            if ($line !== '') {
+                // Wrap in paragraph tags and convert single newlines within the paragraph to line breaks
+                $html .= '<p>' . nl2br($line) . '</p>';
+            }
+        }
+
+        return $html;
     }
 }
