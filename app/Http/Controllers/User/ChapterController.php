@@ -147,7 +147,19 @@ class ChapterController extends Controller
         // Fetch references to pass to AI
         $references = $project->references()->get()->toArray();
 
-        $content = $gemini->generateChapterContent($project->title, $chapter->title, $section->title, $project->research_type, $references);
+        $defaultTitles = [
+            '1.1 Latar Belakang', '1.2 Rumusan Masalah', '1.3 Tujuan Penelitian', '1.4 Manfaat Penelitian', '1.5 Batasan Penelitian',
+            '2.1 Kajian Teori', '2.2 Penelitian Terdahulu', '2.3 Kerangka Berpikir',
+            '3.1 Jenis Penelitian', '3.2 Lokasi & Waktu', '3.3 Populasi & Sampel', '3.4 Teknik Pengumpulan Data', '3.5 Analisis Data',
+            '4.1 Deskripsi Data', '4.2 Hasil Analisis Data', '4.3 Pembahasan',
+            '5.1 Kesimpulan', '5.2 Saran'
+        ];
+
+        if (!in_array($section->title, $defaultTitles)) {
+            $content = $gemini->generateCustomChapterContent($project->title, $chapter->title, $section->title, $project->research_type, $references);
+        } else {
+            $content = $gemini->generateChapterContent($project->title, $chapter->title, $section->title, $project->research_type, $references);
+        }
 
         $section->update([
             'content' => $content

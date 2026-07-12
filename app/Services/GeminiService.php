@@ -229,6 +229,57 @@ Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink
     }
 
     /**
+     * Generate content for custom user-created sub-chapters using a specialized Persona.
+     */
+    public function generateCustomChapterContent(string $title, string $chapterTitle, string $sectionTitle, string $researchType, array $references = []): ?string
+    {
+        $defaultSystem = "Kamu adalah asisten akademik spesialis penulisan subbab kustom skripsi.";
+        $defaultPrompt = "Buatkan konten untuk subbab kustom berikut:
+- Judul Skripsi: {\$title}
+- Bab: {\$chapterTitle}
+- Subbab Khusus: {\$sectionTitle}
+- Jenis Penelitian: {\$researchType}
+
+Karena ini adalah subbab khusus/kustom, Anda harus menganalisis relevansinya terhadap judul skripsi utama.
+Tulis dalam bahasa Indonesia yang formal, akademis, dan sesuai kaidah penulisan ilmiah.
+Gunakan paragraf yang runtut dan mendalam. Minimal 4 paragraf.
+Jangan gunakan format markdown heading (#). Langsung tulis paragrafnya.
+Jangan berikan kalimat pembuka/pengantar seperti 'Berikut adalah konten...', 'Berikut ini adalah...', 'Tentu, ini adalah...', atau pengantar sejenis lainnya. LANGSUNG MULAI dengan paragraf isi konten secara penuh tanpa awalan apapun.
+Jangan menuliskan kembali nomor bab, judul bab, maupun judul subbab (contoh: jangan tulis 'Bab 2 Tinjauan Pustaka' atau '2.1 Kajian Teori' di awal atau di bagian mana pun). LANGSUNG MULAI dengan kalimat pertama paragraf isi konten.
+Jangan menggunakan referensi dummy/fiktif! Anda harus menyertakan referensi jurnal riil dari 3 tahun kebelakang (tahun 2023 - 2026).
+Untuk setiap sitasi yang Anda sebutkan di dalam paragraf, wajib dibuat hyperlink berupa tag HTML <a> dengan target='_blank' (contoh: <a href='https://doi.org/10.1109/xxx' target='_blank'>NamaPenulis, 2024</a>) yang mengarah ke link URL asli dari jurnal tersebut (baik dari referensi yang disediakan maupun jurnal riil lainnya).
+{\$references_context}";
+
+        $refText = "";
+        if (!empty($references)) {
+            $refText = "\n\nBerikut adalah daftar referensi jurnal riil yang disimpan untuk proyek ini. Anda WAJIB memprioritaskan penggunaan referensi ini jika relevan:\n";
+            foreach ($references as $r) {
+                $refUrl = $r['url'] ?: ($r['doi'] ? 'https://doi.org/'.$r['doi'] : '');
+                if ($refUrl) {
+                    $refText .= "- \"{$r['title']}\" oleh {$r['authors']} ({$r['year']}). Jurnal: {$r['journal']}. URL: {$refUrl}\n";
+                } else {
+                    $refText .= "- \"{$r['title']}\" oleh {$r['authors']} ({$r['year']}). Jurnal: {$r['journal']}\n";
+                }
+            }
+        }
+
+        $prompt = $this->buildPrompt('custom_chapter_generator', [
+            'title' => $title,
+            'chapterTitle' => $chapterTitle,
+            'sectionTitle' => $sectionTitle,
+            'researchType' => $researchType,
+            'references_context' => $refText
+        ], $defaultPrompt, $defaultSystem);
+
+        $result = $this->generate($prompt, 0.7, 4096);
+        if ($result) {
+            $cleaned = $this->cleanHeadingHeaders($result, $chapterTitle, $sectionTitle);
+            return $this->formatToHtmlParagraphs($cleaned);
+        }
+        return null;
+    }
+
+    /**
      * Generate research methodology.
      */
     public function generateMethodology(string $topic, string $researchType): ?string
