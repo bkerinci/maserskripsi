@@ -228,7 +228,6 @@
         </div>
     </div>
 
-    @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
         // Modal Edit Bab
@@ -287,5 +286,4 @@
             }
         });
     </script>
-    @endpush
 </x-user-layout>
