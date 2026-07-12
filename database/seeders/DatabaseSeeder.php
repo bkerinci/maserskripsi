@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             SubscriptionPlanSeeder::class,
             LegalPageSeeder::class,
+            PromptSeeder::class,
         ]);
 
         // Create Admin User
