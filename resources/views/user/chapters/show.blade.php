@@ -67,7 +67,7 @@
                                         </a>
                                     </div>
                                     <div class="flex items-center gap-2">
-                                        <button onclick="openEditSectionModal({{ $section->id }}, '{{ addslashes($section->title) }}')" class="text-blue-600 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 hover:text-blue-700 transition-colors border border-blue-100 shadow-sm" title="Edit Judul">
+                                        <button onclick="openEditSectionModal(this, {{ $section->id }})" data-title="{{ $section->title }}" class="text-blue-600 bg-blue-50 p-1.5 rounded-md hover:bg-blue-100 hover:text-blue-700 transition-colors border border-blue-100 shadow-sm" title="Edit Judul">
                                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
                                         </button>
                                         @if(!empty($section->content))
@@ -211,7 +211,8 @@
         }
 
         // Modal Edit Subbab
-        function openEditSectionModal(sectionId, title) {
+        function openEditSectionModal(button, sectionId) {
+            const title = button.getAttribute('data-title');
             document.getElementById('edit-subbab-title').value = title;
             document.getElementById('form-edit-subbab').action = `/user/projects/{{ $project->id }}/chapters/sections/${sectionId}/rename`;
             document.getElementById('modal-edit-subbab').classList.remove('hidden');
