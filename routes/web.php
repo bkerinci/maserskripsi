@@ -69,7 +69,7 @@ Route::prefix('user')->middleware(['auth', 'verified', 'role:user'])->name('user
     Route::post('/projects/{project}/literature/references', [App\Http\Controllers\User\LiteratureReviewController::class, 'store'])->name('literature.store');
     Route::delete('/projects/{project}/literature/references/{reference}', [App\Http\Controllers\User\LiteratureReviewController::class, 'destroy'])->name('literature.destroy');
     Route::post('/projects/{project}/literature/references/{reference}/citation', [App\Http\Controllers\User\LiteratureReviewController::class, 'generateCitation'])->name('literature.citation');
-    
+    Route::post('/projects/{project}/literature/generate', [App\Http\Controllers\User\LiteratureReviewController::class, 'generateReview'])->name('literature.generate');    
     // Statistics & Methodology Routes
     Route::get('/projects/{project}/statistics', [App\Http\Controllers\User\StatisticsController::class, 'index'])->name('statistics.index');
     Route::post('/projects/{project}/statistics/methodology', [App\Http\Controllers\User\StatisticsController::class, 'generateMethodology'])->name('statistics.methodology');

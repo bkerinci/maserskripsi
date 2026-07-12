@@ -189,4 +189,56 @@ class LiteratureReviewController extends Controller
             'format' => $request->format,
         ]);
     }
+
+    /**
+     * Generate comparative literature review from selected references using AI.
+     */
+    public function generateReview(Request $request, Project $project, \App\Services\GeminiService $gemini)
+    {
+        if ($project->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $references = $project->references()->get();
+
+        if ($references->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Belum ada referensi jurnal yang ditambahkan.'
+            ], 400);
+        }
+
+        $context = "";
+        foreach ($references as $index => $ref) {
+            $context .= "Jurnal " . ($index + 1) . ":\n";
+            $context .= "Judul: " . $ref->title . "\n";
+            $context .= "Penulis: " . $ref->authors . "\n";
+            if (!empty($ref->pdf_extracted_text)) {
+                // Ambil 3000 karakter pertama dan terakhir jika dirasa perlu, 
+                // tapi 3000 karakter pertama biasanya sudah memuat abstrak dan pendahuluan.
+                $context .= "Abstrak/Isi: " . substr($ref->pdf_extracted_text, 0, 3000) . "\n";
+            }
+            $context .= "------\n\n";
+        }
+
+        $prompt = "Berikut adalah ringkasan dari beberapa jurnal referensi (Literatur) yang akan digunakan dalam penelitian:\n\n" . 
+                  $context . 
+                  "\nBuatkan sebuah 'Literature Review' akademis yang mensintesis jurnal-jurnal tersebut. " .
+                  "Fokuskan pada: 1. Persamaan antar penelitian. 2. Perbedaan/Metode yang digunakan. 3. Gap Penelitian (Research Gap) yang bisa diisi oleh penelitian saya. " .
+                  "Buatlah hasil akhirnya berbentuk tabel komparasi yang rapi (format Markdown table), lalu diikuti dengan 2-3 paragraf narasi kesimpulan mengenai gap penelitian.";
+
+        $result = $gemini->generate($prompt, 0.7, 4000);
+
+        if (!$result) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghasilkan Literature Review dari AI.'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'review_content' => $result
+        ]);
+    }
 }

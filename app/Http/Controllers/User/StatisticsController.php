@@ -44,7 +44,7 @@ class StatisticsController extends Controller
         ]);
     }
 
-    public function uploadData(Request $request, Project $project)
+    public function uploadData(Request $request, Project $project, GeminiService $gemini)
     {
         if ($project->user_id !== auth()->id()) {
             abort(403);
@@ -56,45 +56,51 @@ class StatisticsController extends Controller
 
         try {
             $file = $request->file('csv_file');
-            $path = $file->getRealPath();
+            $path = $file->storeAs('csv_uploads', time() . '_' . $file->getClientOriginalName());
             
-            // Basic CSV Parsing logic using PHP native functions
-            $data = [];
-            $header = null;
-            if (($handle = fopen($path, 'r')) !== false) {
-                while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-                    if (!$header) {
-                        $header = $row;
-                    } else {
-                        // Tolerate rows with different column counts
-                        if (count($header) === count($row)) {
-                            $data[] = array_combine($header, $row);
-                        }
-                    }
-                }
-                fclose($handle);
+            // Check storage path logic based on Laravel 11/12 changes
+            $fullPath = storage_path('app/private/' . $path);
+            if (!file_exists($fullPath)) {
+                 $fullPath = storage_path('app/' . $path);
             }
 
-            if (empty($data)) {
-                return response()->json(['success' => false, 'message' => 'Berkas CSV kosong atau format tidak sesuai.'], 400);
+            $pythonScript = base_path('python_engine/analyze_stats.py');
+            $process = \Illuminate\Support\Facades\Process::run(['python', $pythonScript, $fullPath]);
+
+            if (!$process->successful()) {
+                return response()->json(['success' => false, 'message' => 'Gagal memproses dengan Python engine.'], 500);
             }
 
-            // Simple Descriptive Statistics Mockup
-            $rowCount = count($data);
-            $columns = count($header);
+            $output = json_decode($process->output(), true);
+            if (!$output || empty($output['success'])) {
+                return response()->json(['success' => false, 'message' => $output['message'] ?? 'Unknown error dari Python'], 500);
+            }
+
+            // Generate narrative using Gemini
+            $statsJson = json_encode([
+                'rows' => $output['rows'],
+                'cols' => $output['cols'],
+                'columns' => $output['columns'],
+                'missing_values' => $output['missing_values'],
+                'cronbach_alpha' => $output['cronbach_alpha']
+            ]);
             
-            $summary = "Berhasil memproses dataset dengan **$rowCount baris** dan **$columns kolom**.\n\n";
-            $summary .= "### Analisis AI (Simulasi)\n";
-            $summary .= "- **Distribusi Data:** Secara umum, data terlihat berdistribusi normal.\n";
-            $summary .= "- **Insight Utama:** Berdasarkan angka rata-rata pada kolom metrik, terdapat tren yang stabil di seluruh entitas.\n";
-            $summary .= "- **Rekomendasi Uji Lanjut:** Disarankan untuk menggunakan Analisis Regresi Linear Berganda untuk mengukur korelasi yang lebih dalam.";
+            $prompt = "Berikut adalah ringkasan hasil analisis statistik deskriptif dan uji reliabilitas (Cronbach's Alpha) dari sebuah dataset penelitian:\n" . $statsJson . "\n\nBuatlah narasi untuk Bab 4 (Hasil dan Pembahasan) berdasarkan angka-angka ini. Tulis secara akademis, jelaskan validitas/reliabilitasnya (jika alpha > 0.6 maka instrumen dianggap reliabel), dan berikan interpretasi. Jangan gunakan markdown heading (#), langsung ke paragraf teks.";
+
+            $narrative = $gemini->generate($prompt, 0.7, 2048);
+            
+            // Fallback to basic summary if AI fails
+            if (!$narrative) {
+                $narrative = "Berhasil memproses dataset dengan **{$output['rows']} baris** dan **{$output['cols']} kolom**. Reliabilitas (Alpha): " . round($output['cronbach_alpha'], 3);
+            }
 
             return response()->json([
                 'success' => true,
-                'summary' => $summary,
-                'rows' => $rowCount,
-                'cols' => $columns,
-                'columns' => $header
+                'summary' => $narrative,
+                'rows' => $output['rows'],
+                'cols' => $output['cols'],
+                'columns' => $output['columns'],
+                'alpha' => $output['cronbach_alpha']
             ]);
 
         } catch (\Exception $e) {
