@@ -27,10 +27,14 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800|outfit:500,600,700,800&display=swap" rel="stylesheet" />
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, .font-heading { font-family: 'Outfit', sans-serif; }
+    </style>
 </head>
 <body class="font-sans antialiased bg-gray-50 text-gray-900">
 
@@ -39,7 +43,10 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <a href="{{ url('/') }}" class="flex items-center gap-2">
-                    <img src="{{ asset('logo-full.png') }}" alt="Master Skripsi Logo" class="h-8 w-auto" />
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-700 to-blue-900 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-900/10">
+                        M
+                    </div>
+                    <span class="font-heading font-bold text-xl text-slate-900 tracking-tight">Master<span class="text-blue-700">Skripsi</span></span>
                 </a>
                 <div class="flex items-center gap-4">
                     @auth
